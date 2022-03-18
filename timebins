@@ -1,0 +1,36 @@
+#!/usr/bin/env python3
+
+# Imports
+import numpy as np
+
+
+def time_bins(epochs, bin_length, operation='sum'):
+    """
+    Takes a matrix of epochs (i.e., trials x time points)
+    and bins the time points into bins.
+    An operation ('sum', 'mean', 'min', 'max') is then
+    performed on the bins. The resulting matrix has the
+    dimensions: trials x (time points / bin_length)
+
+    :param epochs: trials x time array
+    :param bin_length: bin length in samples
+    :param operation: 'sum', 'mean', 'min', 'max'
+    :return: epochs_
+    """
+
+    n_trials = epochs.shape[0]
+    dim_ex_epochs = np.reshape(epochs, (n_trials, -1, bin_length))
+
+    if operation == 'sum':
+        epochs_ = np.sum(dim_ex_epochs, axis=2)
+    elif operation == 'mean':
+        epochs_ = np.mean(dim_ex_epochs, axis=2)
+    elif operation == 'min':
+        epochs_ = np.min(dim_ex_epochs, axis=2)
+    elif operation == 'max':
+        epochs_ = np.max(dim_ex_epochs, axis=2)
+    else:
+        raise ValueError('Accepted operations: '
+                         'sum, mean, min, max')
+
+    return epochs_
