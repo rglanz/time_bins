@@ -2,6 +2,7 @@
 
 # Imports
 import numpy as np
+import warnings
 
 
 def time_bins(epochs, bin_length, operation='sum'):
@@ -11,7 +12,6 @@ def time_bins(epochs, bin_length, operation='sum'):
     An operation ('sum', 'mean', 'min', 'max') is then
     performed on the bins. The resulting matrix has the
     dimensions: trials x (time points / bin_length)
-
     :param epochs: trials x time array
     :param bin_length: bin length in samples
     :param operation: 'sum', 'mean', 'min', 'max'
@@ -19,7 +19,15 @@ def time_bins(epochs, bin_length, operation='sum'):
     """
 
     n_trials = epochs.shape[0]
-    dim_ex_epochs = np.reshape(epochs, (n_trials, -1, bin_length))
+
+    overflow = epochs.shape[1] % (n_trials * bin_length)    # N samples to be trimmed, if applicable
+    if overflow:
+        trimmed_epochs = epochs[:, :epochs.shape[1] - overflow]    # Trim matrix and warn user
+        warnings.warn('Trimmed ' + str(overflow) + ' samples from end.')
+    else:
+        trimmed_epochs = epochs
+
+    dim_ex_epochs = np.reshape(trimmed_epochs, (n_trials, -1, bin_length))  # reshape matrix
 
     if operation == 'sum':
         epochs_ = np.sum(dim_ex_epochs, axis=2)
